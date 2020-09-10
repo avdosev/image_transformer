@@ -7,6 +7,11 @@ struct image {
     using pixel_type = std::vector<uint8_t>;
     using pixels_type = std::vector<std::vector<pixel_type>>;
 
+    image() = default;
+    image(image&& img) = default;
+    image(const image& img) = default;
+    image& operator=(const image& img) = default;
+
     image(size_t height, size_t width) {
         pixels.resize(height);
         for (auto& row: pixels) {

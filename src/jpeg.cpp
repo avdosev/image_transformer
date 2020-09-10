@@ -17,7 +17,7 @@ using auto_close_file = std::unique_ptr<FILE, decltype(&fclose)>;
 image read_image(std::string src) {
     auto_close_file image_file(fopen(src.c_str(), "rb"), &fclose);
     if (image_file == nullptr) {
-        throw file_not_found("file not found");
+        throw file_not_found("file " + src + " not found");
     }
 
     /* Step 1: allocate and initialize JPEG decompression object */
@@ -60,4 +60,49 @@ image read_image(std::string src) {
     jpeg_destroy_decompress(&info);
 
     return img;
+}
+
+void write_image(std::string dest, image img, int quality) {
+    out("write image not implemented");
+    if_debug([&]{
+        out("save file to ", dest);
+    });
+
+    auto_close_file image_file(fopen(dest.c_str(), "wb"), &fclose);
+    if (image_file == nullptr) {
+        throw file_not_found("file " + dest + " not found");
+    }
+
+    struct jpeg_compress_struct info;
+    struct jpeg_error_mgr jerr;
+    info.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&info);
+
+    jpeg_stdio_dest(&info, image_file.get());
+
+    info.image_width = img.width();
+    info.image_height = img.height();
+
+    // TODO: this not always correct
+    info.input_components = 3;
+    info.in_color_space = JCS_RGB;
+
+    jpeg_set_defaults(&info);
+    jpeg_set_quality(&info, quality, true);
+    jpeg_start_compress(&info, TRUE);
+
+    std::vector<uint8_t> buffer;
+    buffer.reserve(info.image_width * info.input_components);
+    while (info.next_scanline < info.image_height) {
+        for (auto& pixel: img.pixels[info.next_scanline]) {
+            std::copy(pixel.begin(), pixel.end(), std::back_inserter(buffer));
+        }
+        auto row = buffer.data();
+        auto row_pointer = &row;
+        jpeg_write_scanlines(&info, row_pointer, 1);
+        buffer.resize(0);
+    }
+
+    jpeg_finish_compress(&info);
+    jpeg_destroy_compress(&info);
 }

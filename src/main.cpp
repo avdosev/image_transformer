@@ -2,6 +2,7 @@
 #include "jpeg.h"
 #include "helper.h"
 #include "image_operations.h"
+#include "error.h"
 
 int main(int argc, char** argv) {
     if (argc < 3) {
@@ -16,13 +17,23 @@ int main(int argc, char** argv) {
         out("dest: ", dest);
     });
 
-    auto img = read_image(src);
-    if_debug([&]{
-        out("height: ", img.height());
-        out("width: ", img.width());
-    });
+    try {
+        image img = read_image(src);
 
-    auto img_after_transform = rotate_by_axis<axis::horizontal>(img);
+        if_debug([&]{
+            out("height: ", img.height());
+            out("width: ", img.width());
+        });
+
+        auto img_after_transform =
+                rotate_by_axis<axis::horizontal>(img);
+        for (int quality: {50, 75, 90}) {
+            write_image(dest + std::to_string(quality) + ".jpg", img_after_transform , quality);
+        }
+    } catch (file_not_found& err) {
+        out(err.what());
+        return -2;
+    }
 
     return 0;
 }
