@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "jpeg.h"
 #include "error.h"
+#include "helper.h"
 
 extern "C" {
 #include <jpeglib.h>
@@ -35,18 +36,23 @@ image read_image(std::string src) {
     size_t height = info.output_height;
     size_t channels = info.num_components;
 
+    if_debug([&]{
+        out("width: ", width);
+        out("height: ", height);
+        out("channels: ", channels);
+    });
+
     image img(height, width);
     std::vector<uint8_t> row(info.output_width*channels);
     while (info.output_scanline < info.output_height) {
         auto rowptr = row.data();
         jpeg_read_scanlines(&info, &rowptr, 1);
         for (size_t i = 0; i < width; i++) {
-            image::pixel_type pixel;
-            pixel.resize(channels);
+            image::pixel_type pixel(channels);
             for (size_t ch = 0; ch < channels; ch++) {
                 pixel[ch] = row[i*channels+ch];
             }
-            img.pixels[info.output_scanline].emplace_back(std::move(pixel));
+            img.pixels[info.output_scanline-1].emplace_back(std::move(pixel));
         }
     }
 
