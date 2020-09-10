@@ -11,8 +11,15 @@ enum class axis {
 
 template <axis ax>
 image rotate_by_axis(image img) {
-    static_assert(ax != axis::vertical, "Vertical axis not supported");
-    std::reverse(img.pixels.begin(), img.pixels.end());
+    if constexpr (ax == axis::vertical) {
+        std::reverse(img.pixels.begin(), img.pixels.end());
+    } else if constexpr (ax == axis::horizontal) {
+        for (auto& row: img.pixels) {
+            std::reverse(row.begin(), row.end());
+        }
+    } else {
+        static_assert(true, "Axis maybe only two");
+    }
     return img;
 }
 

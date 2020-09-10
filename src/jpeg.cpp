@@ -63,7 +63,6 @@ image read_image(std::string src) {
 }
 
 void write_image(std::string dest, image img, int quality) {
-    out("write image not implemented");
     if_debug([&]{
         out("save file to ", dest);
     });
