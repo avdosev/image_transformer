@@ -27,8 +27,8 @@ int main(int argc, char** argv) {
 
         auto img_after_transform =
                 rotate_by_axis<axis::horizontal>(
-                        rotate_by_axis<axis::vertical>(img));
-        for (int quality: {20, 50, 75, 90}) {
+                        rotate_by_axis<axis::vertical>(std::move(img)));
+        for (int quality: {1, 20, 50, 75, 90}) {
             write_image(dest + std::to_string(quality) + ".jpg", img_after_transform , quality);
         }
     } catch (file_not_found& err) {

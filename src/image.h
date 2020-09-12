@@ -8,9 +8,10 @@ struct image {
     using pixels_type = std::vector<std::vector<pixel_type>>;
 
     image() = default;
-    image(image&& img) = default;
+    image(image&& img) noexcept = default;
     image(const image& img) = default;
     image& operator=(const image& img) = default;
+    image& operator=(image&& img) noexcept = default;
 
     image(size_t height, size_t width) {
         pixels.resize(height);
@@ -19,11 +20,11 @@ struct image {
         }
     }
 
-    size_t height() noexcept  {
+    [[nodiscard]] size_t height() const noexcept  {
         return pixels.size();
     }
 
-    size_t width() noexcept {
+    [[nodiscard]] size_t width() const noexcept {
         return height() != 0 ? pixels[0].size() : 0;
     }
 

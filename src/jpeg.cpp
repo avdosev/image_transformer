@@ -62,7 +62,7 @@ image read_image(std::string src) {
     return img;
 }
 
-void write_image(std::string dest, image img, int quality) {
+void write_image(std::string dest, const image &img, int quality) {
     if_debug([&]{
         out("save file to ", dest);
     });
