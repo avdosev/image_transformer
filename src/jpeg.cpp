@@ -83,8 +83,8 @@ void write_image(std::string dest, const image &img, int quality) {
     info.image_height = img.height();
 
     // TODO: this not always correct
-    info.input_components = 3;
-    info.in_color_space = JCS_RGB;
+    info.input_components = img.pixels[0][0].size();
+    info.in_color_space = JCS_GRAYSCALE;
 
     jpeg_set_defaults(&info);
     jpeg_set_quality(&info, quality, true);
